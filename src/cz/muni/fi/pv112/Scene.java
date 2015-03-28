@@ -5,6 +5,7 @@ import javax.media.opengl.GL2;
 import javax.media.opengl.GLAutoDrawable;
 import javax.media.opengl.GLEventListener;
 import com.jogamp.opengl.util.gl2.GLUT;
+import cz.muni.fi.pv112.controlls.KeyboardController;
 import cz.muni.fi.pv112.loaders.ObjLoader;
 import cz.muni.fi.pv112.loaders.ObjLoaderVertexWrapper;
 import cz.muni.fi.pv112.renderers.NewtonBalls;
@@ -21,7 +22,7 @@ import java.awt.event.*;
  *
  * @author milos_000
  */
-public class Scene implements GLEventListener, KeyListener, MouseMotionListener
+public class Scene implements GLEventListener, MouseMotionListener
 {
     private GLU glu;
     private GLUT glut;
@@ -58,6 +59,13 @@ public class Scene implements GLEventListener, KeyListener, MouseMotionListener
     private NewtonBalls newton;
 
     private ObjLoaderVertexWrapper[] sceneObjects = {vase, table, m4a1};
+
+//    controlls
+    private KeyboardController keyboard;
+
+    public void setKeyboard(KeyboardController keyboard) {
+        this.keyboard = keyboard;
+    }
 
     @Override
     public void init(GLAutoDrawable drawable)
@@ -230,28 +238,8 @@ public class Scene implements GLEventListener, KeyListener, MouseMotionListener
     }
 
     private void setCamera() {
-        if(keysPressed[0]) {
-            lookAt[2] += moveStep * (lookAt[5] - lookAt[2]);
-            lookAt[0] += moveStep * (lookAt[3] - lookAt[0]);
-        }
-        if (keysPressed[1]) {
-            lookAt[2] -= moveStep * (lookAt[5] - lookAt[2]);
-            lookAt[0] -= moveStep * (lookAt[3] - lookAt[0]);
-        }
-        if (keysPressed[2]) {
-            lookAt[2] -= moveStep * (lookAt[3] - lookAt[0]);
-            lookAt[0] += moveStep * (lookAt[5] - lookAt[2]);
-        }
-        if (keysPressed[3]) {
-            lookAt[2] += moveStep * (lookAt[3] - lookAt[0]);
-            lookAt[0] -= moveStep * (lookAt[5] - lookAt[2]);
-        }
-        if (keysPressed[4]) {
-            lookAt[1] += moveStep;
-        }
-        if (keysPressed[5]) {
-            lookAt[1] -= moveStep;
-        }
+
+        lookAt = keyboard.getMovement(lookAt);
 
         setViewDirection();
 
@@ -272,72 +260,6 @@ public class Scene implements GLEventListener, KeyListener, MouseMotionListener
             lookAt[3] = lookAt[0] + x_look;
             lookAt[4] = lookAt[1] + y_look;
             lookAt[5] = lookAt[2] + z_look;
-        }
-    }
-
-    private void drawObj(GL2 gl, ObjLoader model) {
-        gl.glShadeModel(GL_SMOOTH);
-
-    }
-
-    @Override
-    public void keyTyped(KeyEvent e) {
-
-    }
-
-    @Override
-    public void keyPressed(KeyEvent e) {
-        if (e.getKeyCode() == KeyEvent.VK_W) {
-            keysPressed[0] = true;
-        }
-        if (e.getKeyCode() == KeyEvent.VK_S) {
-            keysPressed[1] = true;
-        }
-        if (e.getKeyCode() == KeyEvent.VK_A) {
-            keysPressed[2] = true;
-        }
-        if (e.getKeyCode() == KeyEvent.VK_D) {
-            keysPressed[3] = true;
-        }
-        if (e.getKeyCode() == KeyEvent.VK_Q) {
-            keysPressed[4] = true;
-        }
-        if (e.getKeyCode() == KeyEvent.VK_E) {
-            keysPressed[5] = true;
-        }
-        if (e.getKeyCode() == KeyEvent.VK_F) {
-            toggleSlowMotion();
-        }
-    }
-
-    @Override
-    public void keyReleased(KeyEvent e) {
-        if (e.getKeyCode() == KeyEvent.VK_W) {
-            keysPressed[0] = false;
-        }
-        if (e.getKeyCode() == KeyEvent.VK_S) {
-            keysPressed[1] = false;
-        }
-        if (e.getKeyCode() == KeyEvent.VK_A) {
-            keysPressed[2] = false;
-        }
-        if (e.getKeyCode() == KeyEvent.VK_D) {
-            keysPressed[3] = false;
-        }
-        if (e.getKeyCode() == KeyEvent.VK_ESCAPE) {
-            if (trackingMouse) {
-                window.setCursor (Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
-                trackingMouse = false;
-            } else {
-                window.setCursor (invisibleCursor);
-                trackingMouse = true;
-            }
-        }
-        if (e.getKeyCode() == KeyEvent.VK_Q) {
-            keysPressed[4] = false;
-        }
-        if (e.getKeyCode() == KeyEvent.VK_E) {
-            keysPressed[5] = false;
         }
     }
 
@@ -390,5 +312,15 @@ public class Scene implements GLEventListener, KeyListener, MouseMotionListener
 
     public void toggleSlowMotion() {
         newton.togglSlowMotion();
+    }
+
+    public void escapeAction() {
+        if (trackingMouse) {
+            window.setCursor (Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+            trackingMouse = false;
+        } else {
+            window.setCursor (invisibleCursor);
+            trackingMouse = true;
+        }
     }
 }

@@ -137,7 +137,7 @@ public class NewtonBalls {
         }
 
 //        compute angle
-        float modifier = 1 - (Math.max(20, (Math.abs(degree) - 3)) / maxDegree); // simulate gravity move
+        float modifier = 1 - (Math.max(20, (Math.abs(degree) - 2)) / maxDegree); // simulate gravity move
         if (addDirection) {
             degree += timeModifier * modifier;
         } else {

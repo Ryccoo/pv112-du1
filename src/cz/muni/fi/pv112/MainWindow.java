@@ -1,6 +1,7 @@
 package cz.muni.fi.pv112;
 
 import com.jogamp.opengl.util.FPSAnimator;
+import cz.muni.fi.pv112.controlls.KeyboardController;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;
@@ -45,6 +46,11 @@ public class MainWindow extends javax.swing.JFrame {
 
         scene = new Scene();
 
+        KeyboardController keyboard = new KeyboardController();
+
+        scene.setKeyboard(keyboard);
+        keyboard.setScene(scene);
+
 
         /*
         *   Hlavne okno nasej aplikacie (MainWindow) musi poznat nase OpenGL okno
@@ -58,7 +64,7 @@ public class MainWindow extends javax.swing.JFrame {
         *   prikazom addGLEventListener
         */
         canvas.addGLEventListener(scene);
-        canvas.addKeyListener(scene);
+        canvas.addKeyListener(keyboard);
         canvas.addMouseMotionListener(scene);
 
         Toolkit toolkit = Toolkit.getDefaultToolkit();
