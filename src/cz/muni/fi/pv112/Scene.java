@@ -7,6 +7,7 @@ import javax.media.opengl.GLEventListener;
 import com.jogamp.opengl.util.gl2.GLUT;
 import cz.muni.fi.pv112.loaders.ObjLoader;
 import cz.muni.fi.pv112.loaders.ObjLoaderVertexWrapper;
+import cz.muni.fi.pv112.renderers.NewtonBalls;
 
 import static javax.media.opengl.GL.GL_COLOR_BUFFER_BIT;
 import static javax.media.opengl.GL.GL_DEPTH_BUFFER_BIT;
@@ -54,6 +55,7 @@ public class Scene implements GLEventListener, KeyListener, MouseMotionListener
     private ObjLoaderVertexWrapper vase = new ObjLoaderVertexWrapper("/resources/vase.obj");
     private ObjLoaderVertexWrapper table = new ObjLoaderVertexWrapper("/resources/table.obj");
     private ObjLoaderVertexWrapper m4a1 = new ObjLoaderVertexWrapper("/resources/m4a1.obj");
+    private NewtonBalls newton;
 
     private ObjLoaderVertexWrapper[] sceneObjects = {vase, table, m4a1};
 
@@ -81,6 +83,9 @@ public class Scene implements GLEventListener, KeyListener, MouseMotionListener
         glu = new GLU();
         glut = new GLUT();
         gl.glClearColor(.6f,.6f,.6f,1);
+
+//        init custom objects
+        newton = new NewtonBalls(gl, glut);
 
         // TODO LIGHTS
         gl.glClearDepth(1.0f);
@@ -169,7 +174,7 @@ public class Scene implements GLEventListener, KeyListener, MouseMotionListener
 //        render m4a1
         gl.glPushMatrix();
         gl.glRotatef(45,0,1,0);
-        gl.glTranslatef(-20, 73, -20);
+        gl.glTranslatef(-20, 72, -20);
         gl.glRotatef(90,0,0,1);
         gl.glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, new float[]{0.2f, 0.2f, 0.2f}, 0);
         gl.glScalef(0.5f,0.5f,0.5f);
@@ -177,76 +182,12 @@ public class Scene implements GLEventListener, KeyListener, MouseMotionListener
         gl.glPopMatrix();
 
 
-        gl.glPushMatrix(); // render newton
-        gl.glTranslatef(0,80,0); // move it
-        gl.glScalef(10,10,10); // tmp scale
-        gl.glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, new float[]{0.75f, 0.75f, 0.75f}, 0);
-
-        gl.glPushMatrix(); // base
-        gl.glScalef(3,0.1f,1); // dimensions of base 30 * 1 * 10
-        glut.glutSolidCube(10);
-        gl.glPopMatrix(); // end base matrix
-
-        gl.glPushMatrix(); //frame
-        gl.glTranslatef(-14.5f, 0, 4.5f);
-        gl.glRotatef(-90, 1, 0, 0);
-        glut.glutSolidCylinder(0.5f,15,5,5);
-        gl.glPopMatrix(); // end frame matrix
-
-        gl.glPushMatrix(); //frame
-        gl.glTranslatef(14.5f, 0, 4.5f);
-        gl.glRotatef(-90, 1, 0, 0);
-        glut.glutSolidCylinder(0.5f,15,5,5);
-        gl.glPopMatrix(); // end frame matrix
-
-        gl.glPushMatrix(); //frame
-        gl.glTranslatef(-14.5f, 0, -4.5f);
-        gl.glRotatef(-90, 1, 0, 0);
-        glut.glutSolidCylinder(0.5f,15,5,5);
-        gl.glPopMatrix(); // end frame matrix
-
-        gl.glPushMatrix(); //frame
-        gl.glTranslatef(14.5f, 0, -4.5f);
-        gl.glRotatef(-90, 1, 0, 0);
-        glut.glutSolidCylinder(0.5f,15,5,5);
-        gl.glPopMatrix(); // end frame matrix
-
-        gl.glPushMatrix(); //frame
-        gl.glTranslatef(15f, 15, 4.5f);
-        gl.glRotatef(-90, 0, 1, 0);
-        glut.glutSolidCylinder(0.5f,30,5,5);
-        gl.glPopMatrix(); // end frame matrix
-
-        gl.glPushMatrix(); //frame
-        gl.glTranslatef(15f, 15, -4.5f);
-        gl.glRotatef(-90, 0, 1, 0);
-        glut.glutSolidCylinder(0.5f,30,5,5);
-        gl.glPopMatrix(); // end frame matrix
-
-        gl.glPushMatrix(); // ball
-        gl.glTranslatef(0, 5, 0);
-        glut.glutSolidSphere(1.5f, 20, 20);
-        gl.glPushMatrix(); // rope one
-        gl.glRotatef(-65, 1, 0, 0);
-        glut.glutSolidCylinder(0.075f, 11, 5, 5);
-        gl.glPopMatrix(); // end rope
-
-        gl.glPushMatrix(); //rope two
-        gl.glRotatef(-115, 1, 0, 0);
-        glut.glutSolidCylinder(0.075f, 11, 5, 5);
-        gl.glPopMatrix(); // end rope
-        gl.glPopMatrix(); // end ball matrix
-
-
-
-        gl.glPopMatrix(); // end newton matrix
-
-
-
-
-
-
-
+        gl.glPushMatrix();
+        gl.glRotatef(-70, 0, 1, 0);
+        gl.glTranslatef(-13, 70.5f, -40); // move it
+        gl.glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, new float[]{0.5f, 0.5f, 0.5f}, 0);
+        newton.render();
+        gl.glPopMatrix();
 
         gl.glPopMatrix(); // matrix scale to 0.5
 
@@ -364,6 +305,9 @@ public class Scene implements GLEventListener, KeyListener, MouseMotionListener
         if (e.getKeyCode() == KeyEvent.VK_E) {
             keysPressed[5] = true;
         }
+        if (e.getKeyCode() == KeyEvent.VK_F) {
+            toggleSlowMotion();
+        }
     }
 
     @Override
@@ -442,5 +386,9 @@ public class Scene implements GLEventListener, KeyListener, MouseMotionListener
 
     public void setInvisibleCursor(Cursor invisibleCursor) {
         this.invisibleCursor = invisibleCursor;
+    }
+
+    public void toggleSlowMotion() {
+        newton.togglSlowMotion();
     }
 }
