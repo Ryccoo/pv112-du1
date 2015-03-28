@@ -2,6 +2,7 @@ package cz.muni.fi.pv112;
 
 import com.jogamp.opengl.util.FPSAnimator;
 import cz.muni.fi.pv112.controlls.KeyboardController;
+import cz.muni.fi.pv112.controlls.MouseController;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;
@@ -47,11 +48,19 @@ public class MainWindow extends javax.swing.JFrame {
         scene = new Scene();
 
         KeyboardController keyboard = new KeyboardController();
+        MouseController mouse = new MouseController();
 
+//        not very nice, but lets set cross references to make work easier
         scene.setKeyboard(keyboard);
+        scene.setMouse(mouse);
+
         keyboard.setScene(scene);
+        mouse.setScene(scene);
 
 
+//        unik referencii z konstruktoru, nie je velmi pekny, ale zatial neriesime paralelne spracovanie
+        scene.setWindow(this);
+        mouse.setWindow(this);
         /*
         *   Hlavne okno nasej aplikacie (MainWindow) musi poznat nase OpenGL okno
         *   Preto ho musime umiestnit do hlavneho okna prikazom add()
@@ -65,7 +74,7 @@ public class MainWindow extends javax.swing.JFrame {
         */
         canvas.addGLEventListener(scene);
         canvas.addKeyListener(keyboard);
-        canvas.addMouseMotionListener(scene);
+        canvas.addMouseMotionListener(mouse);
 
         Toolkit toolkit = Toolkit.getDefaultToolkit();
         Point hotSpot = new Point(0,0);
@@ -74,7 +83,6 @@ public class MainWindow extends javax.swing.JFrame {
         scene.setInvisibleCursor(invisibleCursor);
         setCursor(invisibleCursor);
 
-        scene.setWindow(this);
 
 
         FPSAnimator a = new FPSAnimator(canvas, 60);
