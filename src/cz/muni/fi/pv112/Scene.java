@@ -39,7 +39,6 @@ public class Scene implements GLEventListener
             0f, 0f, 0f,
             0f, 1f, 0f};
 
-    private Robot robot;
     private boolean trackingMouse = false;
 
     private ObjLoaderVertexWrapper vase = new ObjLoaderVertexWrapper("/resources/vase.obj");
@@ -69,20 +68,14 @@ public class Scene implements GLEventListener
     @Override
     public void init(GLAutoDrawable drawable)
     {
-        try {
-            robot = new Robot();
-        } catch (AWTException e) {
-            e.printStackTrace();
-        }
-//
 
 //        load objects
         for(ObjLoaderVertexWrapper item : sceneObjects) {
             item.load();
         }
 
-        robot.mouseMove(drawable.getSurfaceWidth()/2, drawable.getSurfaceHeight()/2);
         trackingMouse = true;
+        escapeAction();
 
 
         GL2 gl = drawable.getGL().getGL2();
@@ -240,9 +233,8 @@ public class Scene implements GLEventListener
 
     private void setCamera() {
 
-        lookAt = keyboard.getMovement(lookAt);
-
         if(trackingMouse) {
+            lookAt = keyboard.getMovement(lookAt);
             lookAt = mouse.setViewDirection(lookAt);
         }
 

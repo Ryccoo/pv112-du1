@@ -34,7 +34,11 @@ public class MainWindow extends javax.swing.JFrame {
         */
         canvas = new GLJPanel(new GLCapabilities(profile));
         canvas.setLayout(new FlowLayout(FlowLayout.LEFT));
-        JLabel jlabel1 = new JLabel("<html>Press ESC to release / track mouse<br>Press F to toggle slow motion</html>");
+        JLabel jlabel1 = new JLabel("<html>Press ESC to release / track movement (keyboard, mouse)" +
+                "<br>Press F to toggle slow motion" +
+                "<br>Use W,S,A,D to move around" +
+                "<br>Use Q,E to move up and down" +
+                "</html>");
         canvas.add(jlabel1);
 
 
