@@ -44,9 +44,11 @@ public class Scene implements GLEventListener
     private ObjLoaderVertexWrapper vase = new ObjLoaderVertexWrapper("/resources/vase.obj");
     private ObjLoaderVertexWrapper table = new ObjLoaderVertexWrapper("/resources/table.obj");
     private ObjLoaderVertexWrapper m4a1 = new ObjLoaderVertexWrapper("/resources/m4a1.obj");
+    private ObjLoaderVertexWrapper chair = new ObjLoaderVertexWrapper("/resources/chair.obj");
+    private ObjLoaderVertexWrapper rose = new ObjLoaderVertexWrapper("/resources/rose.obj");
     private NewtonBalls newton;
 
-    private ObjLoaderVertexWrapper[] sceneObjects = {vase, table, m4a1};
+    private ObjLoaderVertexWrapper[] sceneObjects = {vase, table, m4a1, chair, rose};
 
 //    controlls
     private KeyboardController keyboard;
@@ -82,7 +84,7 @@ public class Scene implements GLEventListener
 
         glu = new GLU();
         glut = new GLUT();
-        gl.glClearColor(.6f,.6f,.6f,1);
+        gl.glClearColor(0f,.5f,1f,1);
 
 //        init custom objects
         newton = new NewtonBalls(gl, glut);
@@ -91,7 +93,7 @@ public class Scene implements GLEventListener
         gl.glClearDepth(1.0f);
 
         gl.glEnable(GL_LIGHTING);
-        gl.glEnable(GL_LIGHT0);
+//        gl.glEnable(GL_LIGHT0);
         gl.glEnable(GL_NORMALIZE);
 
 
@@ -142,13 +144,13 @@ public class Scene implements GLEventListener
 //        glu.gluLookAt(10, 10, 10, 0, 0, 0, 0, 1, 0);
         setCamera();
 
-        gl.glPushMatrix();
-        gl.glRotatef(time * 20, 0, 1, 0);
-        gl.glTranslatef(4,4,4);
-        gl.glLightfv(GL_LIGHT0, GL_POSITION, new float[]{0, 0, 0, 1}, 0);
-        gl.glLightfv(GL_LIGHT0, GL_SPOT_DIRECTION, new float[]{0,-1,0}, 0);
-
-        glut.glutSolidSphere(0.2f, 10, 10);
+        gl.glPushMatrix(); //unused light for now
+//        gl.glRotatef(time * 20, 0, 1, 0);
+//        gl.glTranslatef(4,4,4);
+//        gl.glLightfv(GL_LIGHT0, GL_POSITION, new float[]{0, 0, 0, 1}, 0);
+//        gl.glLightfv(GL_LIGHT0, GL_SPOT_DIRECTION, new float[]{0,-1,0}, 0);
+//
+//        glut.glutSolidSphere(0.2f, 10, 10);
         gl.glPopMatrix();
 
         gl.glPushMatrix();
@@ -168,7 +170,7 @@ public class Scene implements GLEventListener
 
 //        render vase
         gl.glPushMatrix();
-        gl.glTranslatef(20, 70, 20);
+        gl.glTranslatef(21, 70, 20);
         gl.glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, new float[]{0.2f,0.4f, 0.3f}, 0);
         vase.render(gl);
         gl.glPopMatrix();
@@ -189,6 +191,45 @@ public class Scene implements GLEventListener
         gl.glTranslatef(-13, 70.5f, -40); // move it
         gl.glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, new float[]{0.5f, 0.5f, 0.5f}, 0);
         newton.render();
+        gl.glPopMatrix();
+
+        gl.glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, new float[]{0.8f,0.5f, 0.25f}, 0);
+
+        gl.glPushMatrix();
+        gl.glScalef(3.8f,3.8f,3.8f);
+        gl.glTranslatef(4, 11, -15);
+        chair.render(gl);
+        gl.glPopMatrix();
+
+        gl.glPushMatrix();
+        gl.glScalef(3.8f, 3.8f, 3.8f);
+        gl.glRotatef(180,0,1,0);
+        gl.glTranslatef(4, 11, -15);
+        chair.render(gl);
+        gl.glPopMatrix();
+
+        gl.glPushMatrix();
+        gl.glScalef(3.8f, 3.8f, 3.8f);
+        gl.glTranslatef(20, 11, 4);
+        gl.glRotatef(-90,0,1,0);
+        chair.render(gl);
+        gl.glPopMatrix();
+
+        gl.glPushMatrix();
+        gl.glScalef(3.8f, 3.8f, 3.8f);
+        gl.glTranslatef(-20, 11, -4);
+        gl.glRotatef(90,0,1,0);
+        chair.render(gl);
+        gl.glPopMatrix();
+
+
+        gl.glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, new float[]{0.8f,0.001f, 0.0f}, 0);
+        gl.glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, new float[]{0.0f,0.0f, 0.0f}, 0);
+        gl.glPushMatrix();
+        gl.glTranslatef(17, 100, 24);
+        gl.glRotatef(20, 1, 0, 1);
+        gl.glScalef(0.1f,0.1f,0.1f);
+        rose.render(gl);
         gl.glPopMatrix();
 
         gl.glPopMatrix(); // matrix scale to 0.5
