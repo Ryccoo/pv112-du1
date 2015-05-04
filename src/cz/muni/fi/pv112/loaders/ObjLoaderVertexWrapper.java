@@ -94,11 +94,11 @@ public class ObjLoaderVertexWrapper {
         normalsBuffer.rewind();
 
         if(model.hasTextures()) {
-            texsBuffer = Buffers.newDirectFloatBuffer(texs.size() * 3);
+            texsBuffer = Buffers.newDirectFloatBuffer(texs.size() * model.getTexDimens());
             for (float[] tex : texs) {
-                texsBuffer.put(tex[0]);
-                texsBuffer.put(tex[1]);
-                texsBuffer.put(tex[2]);
+                for(int i = 0; i < model.getTexDimens(); i++) {
+                    texsBuffer.put(tex[i]);
+                }
             }
             texsBuffer.rewind();
         }
@@ -138,7 +138,7 @@ public class ObjLoaderVertexWrapper {
         gl.glVertexPointer(3, GL_FLOAT, 0, verticesBuffer);
         gl.glNormalPointer(GL_FLOAT, 0, normalsBuffer);
         if(model.hasTextures()) {
-            gl.glTexCoordPointer(3, GL_FLOAT, 0, texsBuffer);
+            gl.glTexCoordPointer(model.getTexDimens(), GL_FLOAT, 0, texsBuffer);
         }
 
 //        gl.glScalef(0.1f,0.1f,0.1f);

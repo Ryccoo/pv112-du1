@@ -34,6 +34,8 @@ public class ObjLoader {
 
     private BufferedReader inReader;
 
+    private int tex_dimens = 0;
+
     public ObjLoader(String path) {
         this.path = path;
     }
@@ -83,13 +85,22 @@ public class ObjLoader {
 
                     String[] normStr = line.split("\\s+");
 
-                    float[] texture = new float[3];
+                    if(normStr.length == 4) {
+                        float[] texture = new float[3];
+                        tex_dimens = 3;
+                        texture[0] = Float.parseFloat(normStr[1]);
+                        texture[1] = Float.parseFloat(normStr[2]);
+                        texture[2] = Float.parseFloat(normStr[3]);
 
-                    texture[0] = Float.parseFloat(normStr[1]);
-                    texture[1] = Float.parseFloat(normStr[2]);
-                    texture[2] = Float.parseFloat(normStr[3]);
+                        texs.add(texture);
+                    } else {
+                        float[] texture = new float[2];
+                        tex_dimens = 2;
+                        texture[0] = Float.parseFloat(normStr[1]);
+                        texture[1] = Float.parseFloat(normStr[2]);
 
-                    texs.add(texture);
+                        texs.add(texture);
+                    }
 
                 } else if (line.startsWith("f ")) {
 
@@ -201,6 +212,10 @@ public class ObjLoader {
 
     public List<int[]> getTexsIndices() {
         return texsIndices;
+    }
+
+    public int getTexDimens() {
+        return tex_dimens;
     }
 
     public void render(GL2 gl) {

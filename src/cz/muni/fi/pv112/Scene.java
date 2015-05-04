@@ -50,7 +50,7 @@ public class Scene implements GLEventListener
     private ObjLoaderVertexWrapper vase = new ObjLoaderVertexWrapper("/resources/vase.obj");
     private ObjLoaderVertexWrapper table = new ObjLoaderVertexWrapper("/resources/table.obj");
     private ObjLoaderVertexWrapper m4a1 = new ObjLoaderVertexWrapper("/resources/m4a1.obj");
-    private ObjLoaderVertexWrapper chair = new ObjLoaderVertexWrapper("/resources/chair.obj");
+    private ObjLoaderVertexWrapper chair = new ObjLoaderVertexWrapper("/resources/chair2.obj");
     private ObjLoaderVertexWrapper rose = new ObjLoaderVertexWrapper("/resources/rose.obj");
     private NewtonBalls newton;
 
@@ -64,6 +64,8 @@ public class Scene implements GLEventListener
     Shader fs;
     Texture floorTex;
     Texture tableTex;
+    Texture chairTex;
+    Texture vaseTex;
 
     private int programId;
 
@@ -115,6 +117,8 @@ public class Scene implements GLEventListener
         gl.glEnable(GL_LIGHT0);
         gl.glEnable(GL_NORMALIZE);
 
+        gl.glDisable(GL_LIGHT0);
+
         gl.glLightfv(GL_LIGHT0, GL_DIFFUSE, Colors.white, 0);
         gl.glLightfv(GL_LIGHT0, GL_SPECULAR, Colors.white, 0);
 
@@ -153,6 +157,8 @@ public class Scene implements GLEventListener
         try {
             floorTex = loadTexture(gl, "/resources/textures/floor.jpg", TextureIO.JPG);
             tableTex = loadTexture(gl, "/resources/textures/table.jpg", TextureIO.JPG);
+            chairTex = loadTexture(gl, "/resources/textures/chair.jpg", TextureIO.JPG);
+            vaseTex = loadTexture(gl, "/resources/textures/vase.jpg", TextureIO.JPG);
         } catch (IOException ex) {
             Logger.getLogger(Scene.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -186,20 +192,23 @@ public class Scene implements GLEventListener
         //  Draw obj
         gl.glPushMatrix(); // matrix scale to 0.05
         gl.glScalef(0.05f, 0.05f, 0.05f);
-        gl.glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, new float[]{0.9f,0.8f, 0.5f}, 0);
+        gl.glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, Colors.white, 0);
         gl.glMaterialf(GL_FRONT_AND_BACK, GL_SHININESS, 100);
 //        render table
-        gl.glUseProgram(programId);
+        tableTex.enable(gl);
         tableTex.bind(gl);
         table.render(gl);
-        gl.glUseProgram(0);
+        tableTex.disable(gl);
 
 //        render vase
         gl.glPushMatrix();
         gl.glTranslatef(21, 70, 20);
-        gl.glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, new float[]{0.2f, 0.4f, 0.3f}, 0);
+        gl.glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, Colors.white, 0);
 //        gl.glUseProgram(programId);
+        vaseTex.enable(gl);
+        vaseTex.bind(gl);
         vase.render(gl);
+        vaseTex.disable(gl);
 //        gl.glUseProgram(0);
         gl.glPopMatrix();
 
@@ -221,35 +230,38 @@ public class Scene implements GLEventListener
         newton.render();
         gl.glPopMatrix();
 
-        gl.glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, new float[]{0.8f,0.5f, 0.25f}, 0);
+        gl.glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, Colors.white, 0);
 
+        chairTex.enable(gl);
+        chairTex.bind(gl);
         gl.glPushMatrix();
-        gl.glScalef(3.8f,3.8f,3.8f);
-        gl.glTranslatef(4, 11, -15);
+        gl.glTranslatef(0, 0, -50);
+        gl.glScalef(65,65f,65f);
         chair.render(gl);
         gl.glPopMatrix();
 
         gl.glPushMatrix();
-        gl.glScalef(3.8f, 3.8f, 3.8f);
+        gl.glTranslatef(0, 0, 50);
         gl.glRotatef(180,0,1,0);
-        gl.glTranslatef(4, 11, -15);
+        gl.glScalef(65,65f,65f);
         chair.render(gl);
         gl.glPopMatrix();
 
         gl.glPushMatrix();
-        gl.glScalef(3.8f, 3.8f, 3.8f);
-        gl.glTranslatef(20, 11, 4);
+        gl.glTranslatef(60, 0, 0);
         gl.glRotatef(-90,0,1,0);
+        gl.glScalef(65,65f,65f);
         chair.render(gl);
         gl.glPopMatrix();
 
         gl.glPushMatrix();
-        gl.glScalef(3.8f, 3.8f, 3.8f);
-        gl.glTranslatef(-20, 11, -4);
+        gl.glTranslatef(-60, 0, 0);
         gl.glRotatef(90,0,1,0);
+        gl.glScalef(65,65f,65f);
         chair.render(gl);
         gl.glPopMatrix();
 
+        chairTex.disable(gl);
 
         gl.glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, new float[]{0.8f,0.001f, 0.0f}, 0);
         gl.glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, new float[]{0.0f,0.0f, 0.0f}, 0);
@@ -267,7 +279,7 @@ public class Scene implements GLEventListener
         gl.glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, Colors.white, 0);
         gl.glMaterialf(GL_FRONT_AND_BACK, GL_SHININESS, 100);
 
-        gl.glUseProgram(programId);
+        floorTex.enable(gl);
         floorTex.bind(gl);
 //
 //
@@ -278,7 +290,7 @@ public class Scene implements GLEventListener
             }
         }
 
-        gl.glUseProgram(0);
+        floorTex.disable(gl);
 
 
         gl.glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
