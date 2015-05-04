@@ -17,4 +17,7 @@ public class Colors
     public static final float magenta2[] = {0.5f, 0.0f, 0.5f, 0.0f};
     public static final float yellow2[] = {0.5f, 0.5f, 0.0f, 0.0f};
     public static final float white2[] = {0.5f, 0.5f, 0.5f, 0.0f};
+    public static final float dark[] = {0.2f, 0.2f, 0.2f, 0.0f};
+    public static final float wood[] = {0.5f, 0.33f, 0.2f, 0.0f};
+    public static final float bulb[] = {0.5f, 0.33f, 0.18f, 0.0f};
 }

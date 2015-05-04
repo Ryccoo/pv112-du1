@@ -31,6 +31,16 @@ import java.util.logging.Logger;
  */
 public class Scene implements GLEventListener
 {
+//    development friendly
+    public float preview_x = 0;
+    public float preview_y = 0;
+    public float preview_z = 0;
+    public float step = 0.1f;
+    public float step_change = 0.1f;
+
+//    ---
+
+
     private GLU glu;
     private GLUT glut;
 
@@ -52,9 +62,11 @@ public class Scene implements GLEventListener
     private ObjLoaderVertexWrapper m4a1 = new ObjLoaderVertexWrapper("/resources/m4a1.obj");
     private ObjLoaderVertexWrapper chair = new ObjLoaderVertexWrapper("/resources/chair2.obj");
     private ObjLoaderVertexWrapper rose = new ObjLoaderVertexWrapper("/resources/rose.obj");
+    private ObjLoaderVertexWrapper lamp = new ObjLoaderVertexWrapper("/resources/lamp.obj");
+    private ObjLoaderVertexWrapper bulb = new ObjLoaderVertexWrapper("/resources/bulb.obj");
     private NewtonBalls newton;
 
-    private ObjLoaderVertexWrapper[] sceneObjects = {vase, table, m4a1, chair, rose};
+    private ObjLoaderVertexWrapper[] sceneObjects = {vase, table, m4a1, chair, rose, lamp, bulb};
 
 //    controlls
     private KeyboardController keyboard;
@@ -117,18 +129,15 @@ public class Scene implements GLEventListener
         gl.glEnable(GL_LIGHT0);
         gl.glEnable(GL_NORMALIZE);
 
-        gl.glDisable(GL_LIGHT0);
-
-        gl.glLightfv(GL_LIGHT0, GL_DIFFUSE, Colors.white, 0);
-        gl.glLightfv(GL_LIGHT0, GL_SPECULAR, Colors.white, 0);
+        gl.glLightfv(GL_LIGHT0, GL_DIFFUSE, Colors.dark, 0);
+        gl.glLightfv(GL_LIGHT0, GL_SPECULAR, Colors.dark, 0);
 
 
-//        gl.glEnable(GL_LIGHT1);
-//        gl.glLightfv(GL_LIGHT1, GL_DIFFUSE, Colors.white, 0);
-//        gl.glLightfv(GL_LIGHT1, GL_SPECULAR, Colors.white, 0);
-
-//        gl.glLightf(GL_LIGHT1, GL_SPOT_CUTOFF, 30);
-//        gl.glLightf(GL_LIGHT1, GL_SPOT_EXPONENT, 30);
+        gl.glEnable(GL_LIGHT1);
+        gl.glLightfv(GL_LIGHT1, GL_DIFFUSE, Colors.white, 0);
+        gl.glLightfv(GL_LIGHT1, GL_SPECULAR, Colors.white, 0);
+        gl.glLightf(GL_LIGHT1, GL_SPOT_CUTOFF, 60);
+        gl.glLightf(GL_LIGHT1, GL_SPOT_EXPONENT, 10);
 
         gl.glLightfv(GL_LIGHT0, GL_POSITION, new float[]{4, 4, 4, 0}, 0);
 
@@ -193,6 +202,7 @@ public class Scene implements GLEventListener
         gl.glPushMatrix(); // matrix scale to 0.05
         gl.glScalef(0.05f, 0.05f, 0.05f);
         gl.glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, Colors.white, 0);
+        gl.glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, Colors.wood, 0);
         gl.glMaterialf(GL_FRONT_AND_BACK, GL_SHININESS, 100);
 //        render table
         tableTex.enable(gl);
@@ -218,6 +228,7 @@ public class Scene implements GLEventListener
         gl.glTranslatef(-20, 72, -20);
         gl.glRotatef(90,0,0,1);
         gl.glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, new float[]{0.2f, 0.2f, 0.2f}, 0);
+        gl.glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, new float[]{0.2f, 0.2f, 0.2f}, 0);
         gl.glScalef(0.5f,0.5f,0.5f);
         m4a1.render(gl);
         gl.glPopMatrix();
@@ -239,6 +250,7 @@ public class Scene implements GLEventListener
         gl.glScalef(65,65f,65f);
         chair.render(gl);
         gl.glPopMatrix();
+
 
         gl.glPushMatrix();
         gl.glTranslatef(0, 0, 50);
@@ -262,6 +274,26 @@ public class Scene implements GLEventListener
         gl.glPopMatrix();
 
         chairTex.disable(gl);
+
+//        render lamp
+        gl.glPushMatrix();
+        gl.glTranslatef(-40, 72, 30);
+        gl.glRotatef(225, 0, 1, 0);
+//        gl.glScalef(1,1,1);
+        lamp.render(gl);
+
+        gl.glTranslatef(-3.3f,16.6f,0f);
+        gl.glRotatef(-25, 0, 0, 1);
+        gl.glScalef(0.2f, 0.2f, 0.2f);
+        gl.glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, Colors.yellow, 0);
+        gl.glMaterialfv(GL_FRONT, GL_EMISSION, Colors.bulb, 0);
+        bulb.render(gl);
+        gl.glMaterialfv(GL_FRONT, GL_EMISSION, Colors.black, 0);
+        gl.glLightfv(GL_LIGHT1, GL_POSITION, new float[]{0,0,0,1}, 0);
+        gl.glLightfv(GL_LIGHT1, GL_SPOT_DIRECTION, new float[]{0, -1f, 0}, 0);
+        gl.glPopMatrix();
+//        end lamp
+
 
         gl.glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, new float[]{0.8f,0.001f, 0.0f}, 0);
         gl.glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, new float[]{0.0f,0.0f, 0.0f}, 0);

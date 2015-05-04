@@ -71,6 +71,48 @@ public class KeyboardController implements KeyListener {
         if (e.getKeyCode() == KeyEvent.VK_E) {
             keysPressed[5] = false;
         }
+
+//        development environment
+        if (e.getKeyCode() == KeyEvent.VK_J) {
+            scene.preview_x -= scene.step;
+            printDevelopmentValues();
+        }
+        if (e.getKeyCode() == KeyEvent.VK_L) {
+            scene.preview_x += scene.step;
+            printDevelopmentValues();
+        }
+        if (e.getKeyCode() == KeyEvent.VK_U) {
+            scene.preview_y -= scene.step;
+            printDevelopmentValues();
+        }
+        if (e.getKeyCode() == KeyEvent.VK_O) {
+            scene.preview_y += scene.step;
+            printDevelopmentValues();
+        }
+        if (e.getKeyCode() == KeyEvent.VK_I) {
+            scene.preview_z -= scene.step;
+            printDevelopmentValues();
+        }
+        if (e.getKeyCode() == KeyEvent.VK_K) {
+            scene.preview_z += scene.step;
+            printDevelopmentValues();
+        }
+        if (e.getKeyCode() == KeyEvent.VK_M) {
+            scene.step -= scene.step_change;
+            printDevelopmentValues();
+        }
+        if (e.getKeyCode() == KeyEvent.VK_N) {
+            scene.step += scene.step_change;
+            printDevelopmentValues();
+        }
+    }
+
+    private void printDevelopmentValues() {
+        System.out.println("X: " + scene.preview_x +
+                "\nY: " + scene.preview_y +
+                "\nZ: " + scene.preview_z +
+                "\nStep: " + scene.step +
+                "\n");
     }
 
     public double[] getMovement(double[] lookAt) {
