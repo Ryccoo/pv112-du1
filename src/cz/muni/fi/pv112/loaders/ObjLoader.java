@@ -18,14 +18,19 @@ public class ObjLoader {
     private String path;
 
     private List<float[]> vertices;
-    private List<float[]> normals;
     private List<int[]> vertexIndices;
-    private List<int[]> normalIndices;
-
     private FloatBuffer verticesBuffer;
-    private FloatBuffer normalsBuffer;
     private IntBuffer vertexIndicesBuffer;
+
+    private List<float[]> normals;
+    private List<int[]> normalIndices;
+    private FloatBuffer normalsBuffer;
     private IntBuffer normalsIndicesBuffer;
+
+    private List<float[]> texs;
+    private List<int[]> texsIndices;
+    private FloatBuffer texsBuffer;
+    private IntBuffer texsIndicesBuffer;
 
     private BufferedReader inReader;
 
@@ -37,8 +42,11 @@ public class ObjLoader {
         /** Mesh containing the loaded object */
         vertices = new ArrayList<float[]>();
         normals = new ArrayList<float[]>();
+        texs = new ArrayList<float[]>();
         vertexIndices = new ArrayList<int[]>();
         normalIndices = new ArrayList<int[]>();
+        texsIndices = new ArrayList<int[]>();
+
 
         String line;
         try {
@@ -73,7 +81,15 @@ public class ObjLoader {
 
                 } else if (line.startsWith("vt ")) {
 
-                    // TODO: texturove suradnice
+                    String[] normStr = line.split("\\s+");
+
+                    float[] texture = new float[3];
+
+                    texture[0] = Float.parseFloat(normStr[1]);
+                    texture[1] = Float.parseFloat(normStr[2]);
+                    texture[2] = Float.parseFloat(normStr[3]);
+
+                    texs.add(texture);
 
                 } else if (line.startsWith("f ")) {
 
@@ -86,6 +102,16 @@ public class ObjLoader {
                     vertexIndices.add(faceVert);
 
                     // TODO: indexy texturovych suradnic (2. hodnota z trojice cisel)
+
+
+                    int[] texVert = new int[3];
+                    if(faceStr[1].split("/")[1].length() != 0) {
+                        texVert[0] = Integer.parseInt(faceStr[1].split("/")[1]) - 1;
+                        texVert[1] = Integer.parseInt(faceStr[2].split("/")[1]) - 1;
+                        texVert[2] = Integer.parseInt(faceStr[3].split("/")[1]) - 1;
+                        texsIndices.add(texVert);
+                    }
+
                     if (faceStr[1].split("/").length >= 3) {
                         int[] faceNorm = new int[3];
 
@@ -114,6 +140,15 @@ public class ObjLoader {
             }
         normalsBuffer.rewind();
 
+//        texsBuffer = Buffers.newDirectFloatBuffer(texs.size() * 3);
+//        for (float[] tex : texs) {
+//            texsBuffer.put(tex[0]);
+//            texsBuffer.put(tex[1]);
+//            texsBuffer.put(tex[2]);
+//        }
+//        texsBuffer.rewind();
+
+
         vertexIndicesBuffer = Buffers.newDirectIntBuffer(vertexIndices.size() * 3);
         for (int[] vertexIndex : vertexIndices) {
                 vertexIndicesBuffer.put(vertexIndex[0]);
@@ -130,8 +165,17 @@ public class ObjLoader {
             }
         normalsIndicesBuffer.rewind();
 
+//        texsIndicesBuffer = Buffers.newDirectIntBuffer(texsIndices.size() * 3);
+//        for (int[] texIndex : texsIndices) {
+//            texsIndicesBuffer.put(texIndex[0]);
+//            texsIndicesBuffer.put(texIndex[1]);
+//            texsIndicesBuffer.put(texIndex[2]);
+//        }
+//        texsIndicesBuffer.rewind();
+
         } catch (IOException ex) {
             System.out.println("Unable to load " + path + " file: " + ex.getMessage());
+            System.exit(1);
         }
     }
 
@@ -143,6 +187,10 @@ public class ObjLoader {
         return normals;
     }
 
+    public List<float[]> getTexs() {
+        return texs;
+    }
+
     public List<int[]> getVertexIndices() {
         return vertexIndices;
     }
@@ -151,19 +199,34 @@ public class ObjLoader {
         return normalIndices;
     }
 
+    public List<int[]> getTexsIndices() {
+        return texsIndices;
+    }
+
     public void render(GL2 gl) {
 
         gl.glBegin(GL_TRIANGLES);
         for (int j = 0; j < vertexIndices.size(); j++) {
             int[] vertex = vertexIndices.get(j);
             int[] normal = normalIndices.get(j);
+            int[] tex = {0,0,0};
+            if (hasTextures()) {
+                tex = texsIndices.get(j);
+            }
 
             for (int i = 0; i < 3; i++) {
                 gl.glNormal3fv(normals.get(normal[i]), 0);
                 gl.glVertex3fv(vertices.get(vertex[i]), 0);
+                if(hasTextures()) {
+                    gl.glTexCoord3fv(texs.get(tex[i]), 0);
+                }
             }
         }
         gl.glEnd();
+    }
+
+    public boolean hasTextures() {
+        return texs.size() != 0;
     }
 
     public FloatBuffer getVerticesBuffer() {

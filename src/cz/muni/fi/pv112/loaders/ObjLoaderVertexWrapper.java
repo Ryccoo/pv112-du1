@@ -19,10 +19,12 @@ public class ObjLoaderVertexWrapper {
 
     private List<float[]> vertices;
     private List<float[]> normals;
+    private List<float[]> texs;
     private List<int[]> vertexIndices;
 
     private FloatBuffer verticesBuffer;
     private FloatBuffer normalsBuffer;
+    private FloatBuffer texsBuffer;
     private IntBuffer vertexIndicesBuffer;
 
     public ObjLoaderVertexWrapper(String path) {
@@ -30,6 +32,7 @@ public class ObjLoaderVertexWrapper {
 
         vertices = new ArrayList<float[]>();
         normals = new ArrayList<float[]>();
+        texs = new ArrayList<float[]>();
         vertexIndices = new ArrayList<int[]>();
     }
 
@@ -38,20 +41,30 @@ public class ObjLoaderVertexWrapper {
 
         List<float[]> objVertices = model.getVertices();
         List<float[]> objNormals = model.getNormals();
+        List<float[]> objTextures = model.getTexs();
+
         List<int[]> objVertexIndices = model.getVertexIndices();
         List<int[]> objNormalIndices = model.getNormalIndices();
+        List<int[]> objTextureIndices = model.getTexsIndices();
 
         int common_index = 0;
 
         for (int j = 0; j < objVertexIndices.size(); j++) {
             int[] vertexI = objVertexIndices.get(j);
             int[] normalI = objNormalIndices.get(j);
+            int[] textI = {0,0,0};
+            if(model.hasTextures()) {
+                textI = objTextureIndices.get(j);
+            }
 
             int[] newVertexI = {0,0,0};
 
             for (int i = 0; i < 3; i++) {
                 normals.add(objNormals.get(normalI[i]));
                 vertices.add(objVertices.get(vertexI[i]));
+                if(model.hasTextures()) {
+                    texs.add(objTextures.get(textI[i]));
+                }
                 newVertexI[i] = common_index;
                 common_index++;
             }
@@ -80,6 +93,16 @@ public class ObjLoaderVertexWrapper {
         }
         normalsBuffer.rewind();
 
+        if(model.hasTextures()) {
+            texsBuffer = Buffers.newDirectFloatBuffer(texs.size() * 3);
+            for (float[] tex : texs) {
+                texsBuffer.put(tex[0]);
+                texsBuffer.put(tex[1]);
+                texsBuffer.put(tex[2]);
+            }
+            texsBuffer.rewind();
+        }
+
         vertexIndicesBuffer = Buffers.newDirectIntBuffer(vertexIndices.size() * 3);
         for (int[] vertexIndex : vertexIndices) {
             vertexIndicesBuffer.put(vertexIndex[0]);
@@ -90,6 +113,10 @@ public class ObjLoaderVertexWrapper {
     }
 
     public void render(GL2 gl) {
+//        if(true) {
+//            model.render(gl);
+//            return;
+//        }
         // Vertex arrays
         /*
         *   Funguje spravne len ak mate rovnaky index pre normaly, vertexy, a textury
@@ -99,6 +126,9 @@ public class ObjLoaderVertexWrapper {
 //        Povolit vertex a normal arrays
         gl.glEnableClientState(GL_VERTEX_ARRAY);
         gl.glEnableClientState(GL_NORMAL_ARRAY);
+        if(model.hasTextures()) {
+            gl.glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+        }
 
         // Specifikovat kde su jednotlive vetexy a normaly ulozene
         // pozor pri pouzivani vertex arrays musia byt body ulozene vo FloatBuffer a indexy v IntBuffer
@@ -107,6 +137,9 @@ public class ObjLoaderVertexWrapper {
         // viz ObjLoader.class
         gl.glVertexPointer(3, GL_FLOAT, 0, verticesBuffer);
         gl.glNormalPointer(GL_FLOAT, 0, normalsBuffer);
+        if(model.hasTextures()) {
+            gl.glTexCoordPointer(3, GL_FLOAT, 0, texsBuffer);
+        }
 
 //        gl.glScalef(0.1f,0.1f,0.1f);
 
@@ -116,6 +149,8 @@ public class ObjLoaderVertexWrapper {
         // Zakazat vertex a normal arrays
         gl.glDisableClientState(GL_VERTEX_ARRAY);
         gl.glDisableClientState(GL_NORMAL_ARRAY);
-
+        if(model.hasTextures()) {
+            gl.glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+        }
     }
 }
