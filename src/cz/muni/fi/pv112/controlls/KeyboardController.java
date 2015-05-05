@@ -46,6 +46,9 @@ public class KeyboardController implements KeyListener {
         if (e.getKeyCode() == KeyEvent.VK_F) {
             scene.toggleSlowMotion();
         }
+        if (e.getKeyCode() == KeyEvent.VK_R) {
+            scene.toggleLights();
+        }
     }
 
     @Override

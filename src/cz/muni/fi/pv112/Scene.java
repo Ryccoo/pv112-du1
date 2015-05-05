@@ -11,7 +11,10 @@ import cz.muni.fi.pv112.controlls.KeyboardController;
 import cz.muni.fi.pv112.controlls.MouseController;
 import cz.muni.fi.pv112.loaders.ObjLoader;
 import cz.muni.fi.pv112.loaders.ObjLoaderVertexWrapper;
+import cz.muni.fi.pv112.renderers.GlowingText;
 import cz.muni.fi.pv112.renderers.NewtonBalls;
+import cz.muni.fi.pv112.renderers.RoofLight;
+import javafx.scene.effect.Glow;
 
 import static javax.media.opengl.GL.GL_COLOR_BUFFER_BIT;
 import static javax.media.opengl.GL.GL_DEPTH_BUFFER_BIT;
@@ -64,7 +67,10 @@ public class Scene implements GLEventListener
     private ObjLoaderVertexWrapper rose = new ObjLoaderVertexWrapper("/resources/rose.obj");
     private ObjLoaderVertexWrapper lamp = new ObjLoaderVertexWrapper("/resources/lamp.obj");
     private ObjLoaderVertexWrapper bulb = new ObjLoaderVertexWrapper("/resources/bulb.obj");
+
     private NewtonBalls newton;
+    private RoofLight roofLight;
+    private GlowingText glowingText;
 
     private ObjLoaderVertexWrapper[] sceneObjects = {vase, table, m4a1, chair, rose, lamp, bulb};
 
@@ -78,6 +84,8 @@ public class Scene implements GLEventListener
     Texture tableTex;
     Texture chairTex;
     Texture vaseTex;
+    Texture wallTex;
+
 
     private int programId;
 
@@ -118,10 +126,12 @@ public class Scene implements GLEventListener
 
 //        init custom objects
         newton = new NewtonBalls(gl, glut);
+        roofLight = new RoofLight(gl, glut, GL_LIGHT2);
+        glowingText = new GlowingText(gl, glut, GL_LIGHT3);
 
         // TODO LIGHTS
         gl.glClearDepth(1.0f);
-        gl.glClearColor(0f,.5f,1f,1);
+        gl.glClearColor(0f,.125f,0.25f,1);
 
         gl.glEnable(GL_DEPTH_TEST);
 
@@ -139,7 +149,15 @@ public class Scene implements GLEventListener
         gl.glLightf(GL_LIGHT1, GL_SPOT_CUTOFF, 60);
         gl.glLightf(GL_LIGHT1, GL_SPOT_EXPONENT, 10);
 
-        gl.glLightfv(GL_LIGHT0, GL_POSITION, new float[]{4, 4, 4, 0}, 0);
+        gl.glLightfv(GL_LIGHT0, GL_POSITION, new float[]{1, 5, 15, 0}, 0);
+        gl.glLightfv(GL_LIGHT0, GL_SPOT_DIRECTION, new float[]{0,0,0,0}, 0);
+
+
+        gl.glEnable(GL_LIGHT2);
+        gl.glLightfv(GL_LIGHT2, GL_DIFFUSE, Colors.shine, 0);
+        gl.glLightfv(GL_LIGHT2, GL_SPECULAR, Colors.shine, 0);
+        gl.glLightf(GL_LIGHT2, GL_SPOT_CUTOFF, 90);
+        gl.glLightf(GL_LIGHT2, GL_SPOT_EXPONENT, 1);
 
         //   Material
         gl.glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, Colors.white, 0);
@@ -168,6 +186,7 @@ public class Scene implements GLEventListener
             tableTex = loadTexture(gl, "/resources/textures/table.jpg", TextureIO.JPG);
             chairTex = loadTexture(gl, "/resources/textures/chair.jpg", TextureIO.JPG);
             vaseTex = loadTexture(gl, "/resources/textures/vase.jpg", TextureIO.JPG);
+            wallTex = loadTexture(gl, "/resources/textures/wall.jpg", TextureIO.JPG);
         } catch (IOException ex) {
             Logger.getLogger(Scene.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -227,7 +246,7 @@ public class Scene implements GLEventListener
         gl.glRotatef(45,0,1,0);
         gl.glTranslatef(-20, 72, -20);
         gl.glRotatef(90,0,0,1);
-        gl.glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, new float[]{0.2f, 0.2f, 0.2f}, 0);
+        gl.glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, Colors.weapon, 0);
         gl.glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, new float[]{0.2f, 0.2f, 0.2f}, 0);
         gl.glScalef(0.5f,0.5f,0.5f);
         m4a1.render(gl);
@@ -304,7 +323,25 @@ public class Scene implements GLEventListener
         rose.render(gl);
         gl.glPopMatrix();
 
-        gl.glPopMatrix(); // matrix scale to 0.5
+
+        //render roof light
+        gl.glPushMatrix();
+        gl.glTranslatef(0, 300, 0);
+        roofLight.render();
+        gl.glPopMatrix();
+        // end roof light
+
+        //glowing text
+        gl.glPushMatrix();
+        gl.glTranslatef(-80, 220, -198);
+        gl.glScalef(1.5f, 1.5f, 1.5f);
+        glowingText.render();
+        gl.glPopMatrix();
+        // end glowing text
+
+
+
+        gl.glPopMatrix(); // matrix scale to 0.05
 
 
         // Draw Floor
@@ -316,16 +353,56 @@ public class Scene implements GLEventListener
 //
 //
         float floor_step = 5;
-        for(float posx = -25; posx < 25; posx += floor_step) {
-            for(float posy = -25; posy < 25; posy += floor_step) {
+        for(float posx = -10; posx < 10; posx += floor_step) {
+            for(float posy = -10; posy < 10; posy += floor_step) {
                 drawFloor(gl, posx, posx + floor_step, posy, posy + floor_step, 0.25f, 0.25f);
             }
         }
-
         floorTex.disable(gl);
 
 
+
+        wallTex.enable(gl);
+        wallTex.bind(gl);
+        drawWalls(gl);
+        wallTex.disable(gl);
+
         gl.glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+    }
+
+    private void drawWalls(GL2 gl) {
+        float floor_step = 5;
+
+        gl.glPushMatrix();
+        gl.glTranslatef(0, 0, -10);
+        gl.glRotatef(90, 1, 0, 0);
+        for(float posx = -10; posx < 10; posx += floor_step) {
+            for(float posy = -15; posy < 0; posy += floor_step) {
+                drawFloor(gl, posx, posx + floor_step, posy, posy + floor_step, 0.25f, 0.25f);
+            }
+        }
+        gl.glPopMatrix();
+
+        gl.glPushMatrix();
+        gl.glTranslatef(10, 0, 0);
+        gl.glRotatef(90, 1, 0, 0);
+        gl.glRotatef(90, 0, 0, 1);
+        for(float posx = -10; posx < 10; posx += floor_step) {
+            for(float posy = -15; posy < 0; posy += floor_step) {
+                drawFloor(gl, posx, posx + floor_step, posy, posy + floor_step, 0.25f, 0.25f);
+            }
+        }
+        gl.glPopMatrix();
+
+        gl.glPushMatrix();
+        gl.glTranslatef(0, 15, 0);
+        for(float posx = -10; posx < 10; posx += floor_step) {
+            for(float posy = -10; posy < 10; posy += floor_step) {
+                drawFloor(gl, posx, posx + floor_step, posy, posy + floor_step, 0.25f, 0.25f);
+            }
+        }
+        gl.glPopMatrix();
+
     }
 
     @Override
@@ -382,6 +459,7 @@ public class Scene implements GLEventListener
 
     public void toggleSlowMotion() {
         newton.togglSlowMotion();
+        roofLight.togglSlowMotion();
     }
 
     public void escapeAction() {
@@ -427,5 +505,9 @@ public class Scene implements GLEventListener
             System.err.println(error);
             System.exit(3);
         }
+    }
+
+    public void toggleLights() {
+        roofLight.toggleLight();
     }
 }
